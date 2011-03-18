@@ -10,34 +10,35 @@ struct BadSecondIndex {};
 // интерфейс класса Matrix
 class Matrix
 {
-	long	n_, m_;	// размерности матрицы
+	long	columns_, rows_;	// размерности матрицы
 	double*	p_;		// указатель на матрицу
 	Matrix();
-	class row
+	class Row
 	{
-		long	m_;	// размерность строки
+		long	columns_;	// размерность строки
 		double* p_;	// указатель на строку
 	public:
-		row(long m, double* p);
+		Row(long rowN, double* p);
 			// оператор индексирования
-		double& operator [] (long j);				// throw BadFirstIndex
-		const double& operator [] (long j) const;	// throw BadSecondIndex
+		double& operator [] (long j);				// thRow BadFirstIndex
+		const double& operator [] (long j) const;	// thRow BadSecondIndex		
 	};
 public:
 		// конструкторы
+	void makeUnitMatrix (long n);
 	Matrix(long n, long m);
 	Matrix(const Matrix& m);
 		// деструктор
 	~Matrix();
 		// оператор присваивания
-	Matrix& operator = (const Matrix& m);	// throw BadDimensions
+	Matrix& operator = (const Matrix& m);	// thRow BadDimensions
 		// оператор индексирования
-	row operator [] (long i);				// throw BadFirstIndex
-	const row operator [] (long i) const;	// throw BadFirstIndex
+	Row& operator [] (long i);				// thRow BadFirstIndex
+	const Row operator [] (long i) const;	// thRow BadFirstIndex
 		// унарные операторы
-	Matrix& operator += (const Matrix& m);	// throw BadDimensions
-	Matrix& operator -= (const Matrix& m);	// throw BadDimensions
-	Matrix& operator *= (const Matrix& m);	// throw BadDimensions
+	Matrix& operator += (const Matrix& m);	// thRow BadDimensions
+	Matrix& operator -= (const Matrix& m);	// thRow BadDimensions
+	Matrix& operator *= (const Matrix& m);	// thRow BadDimensions
 	Matrix& operator *= (const double& d);
 		// унарные операторы
 	friend Matrix operator -(const Matrix& m);
