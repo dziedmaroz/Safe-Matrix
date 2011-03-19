@@ -64,16 +64,10 @@ void Matrix::makeUnitMatrix (long n)
 	delete [] p_;
 
 	 p_=new double [n*n];
-	 int j=0;
-	 for (int i=0;i<n*n;i++)
-	 {
-		if ((i+j)%n==0)
-		{
-			p_[i]=1;
-			j++;
-		}
-		else p_[0];
-	 }
+	 for (int i=0;i<n;i++)
+	     for (int j=0;j<n;j++)
+		if (i==j) (*this)[i][j]=1;
+		else (*this)[i][j]=0;
 }
 
 
@@ -101,17 +95,33 @@ Matrix::Row::Row (long rowN, double *p)
 	columns_=rowN;
 }
 
-Matrix::Row& Matrix::operator [](long i)
+const Matrix::Row Matrix::operator [](long i) const
 {
 	BadFirstIndex err;
 	if (i>=rows_) throw (err);
-	return Matrix::Row (this->columns_,p_+i*this->columns_);
+	Matrix::Row tmp  (this->columns_,this->p_+(i*this->columns_));
+	return tmp;
 }
 
 
-double& Matrix::Row::operator [](long j)
+const double& Matrix::Row::operator [](long j) const
 {
 	BadSecondIndex err;
 	if (j>=this->columns_) throw (err);
 	return p_[j];
+}
+
+Matrix::Row& Matrix::operator [] (long i)
+{
+    BadFirstIndex err;
+    if (i>=rows_) throw (err);
+    Matrix::Row tmp  (this->columns_,this->p_+(i*this->columns_));
+    return tmp;
+}
+
+double& Matrix::Row::operator [] (long j)
+{
+    BadSecondIndex err;
+    if (j>=this->columns_) throw (err);
+    return p_[j];
 }
