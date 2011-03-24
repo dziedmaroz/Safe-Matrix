@@ -51,6 +51,12 @@ public:
 	friend Matrix operator + (const Matrix& m1, const Matrix& m2);
 	friend Matrix operator - (const Matrix& m1, const Matrix& m2);
 	friend Matrix operator * (const Matrix& m1, const Matrix& m2);
+
+	double det ();
+	long getRows ();
+	long getColumns();
+	Matrix& toTriangleMatrix ();
+
 };
 
 #endif // MATRIX_H

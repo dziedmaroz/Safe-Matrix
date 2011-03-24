@@ -125,3 +125,23 @@ double& Matrix::Row::operator [] (long j)
     if (j>=this->columns_) throw (err);
     return p_[j];
 }
+
+Matrix& Matrix::toTriangleMatrix ()
+{
+    Matrix tmp = *this;
+    int n=this->columns_<this->rows_?this->columns_:this->rows_;
+    for (int i=0;i<n;i++)
+    {
+        for (int j=i+1;j<n;j++)
+        {
+            double t=tmp[i][0];
+            for (int k=0;k<n;k++)
+            {
+                tmp[i][k]*=tmp[j][0];
+                tmp[j][k]*=t;
+                tmp[j][k]-=tmp[i][k];
+            }
+        }
+    }
+    return tmp;
+}
