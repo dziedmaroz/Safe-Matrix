@@ -25,7 +25,8 @@ class Matrix
 		const double& operator [] (long j) const;	// thRow BadSecondIndex		
 	};
 
-	void nullCell (Matrix& A, Matrix &B, int k);
+	double cofactor (int i,int j);
+
 
 public:
 		// конструкторы

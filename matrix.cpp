@@ -199,3 +199,30 @@ Matrix Matrix::toInvertibleMatrix (bool &isDegenerate=false)
     B.makeUnitMatrix (n);
 
 }
+
+double Matrix::cofactor (int x, int y)
+{
+    Matrix A (this->columns_-1, this->rows_-1);
+    int iDiff=0;
+    int jDiff=0;
+    for (int i=0;i<this->columns_;i++)
+    {
+
+        jDiff=0;
+        for (int j=0;j<this->columns_;j++)
+        {
+            if (i==x)
+            {
+                iDiff=1;
+                continue;
+            }
+            if (j==y)
+            {
+                jDiff=1;
+                continue;
+            }
+            A[i-iDiff][j-jDiff]=*this [i][j];
+        }
+    }
+    return A.det ();
+}
