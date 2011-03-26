@@ -1,5 +1,6 @@
 #include "matrix.h"
 #include <cstdlib>
+#include <cstdio>
 Matrix::Matrix()
 {
   this->rows_=0;
@@ -111,7 +112,7 @@ const double& Matrix::Row::operator [](long j) const
 	return p_[j];
 }
 
-Matrix::Row& Matrix::operator [] (long i)
+Matrix::Row Matrix::operator [] (long i)
 {
     BadFirstIndex err;
     if (i>=rows_) throw (err);
@@ -126,7 +127,7 @@ double& Matrix::Row::operator [] (long j)
     return p_[j];
 }
 
-Matrix& Matrix::toTriangleMatrix ()
+Matrix Matrix::toTriangleMatrix ()
 {
     Matrix tmp = *this;
     int n=this->columns_<this->rows_?this->columns_:this->rows_;
@@ -134,14 +135,67 @@ Matrix& Matrix::toTriangleMatrix ()
     {
         for (int j=i+1;j<n;j++)
         {
-            double t=tmp[i][0];
-            for (int k=0;k<n;k++)
-            {
-                tmp[i][k]*=tmp[j][0];
-                tmp[j][k]*=t;
-                tmp[j][k]-=tmp[i][k];
-            }
+            double hi=tmp[i][i];
+			double lo=tmp[j][i];
+			if (lo*hi!=0)
+				for (int k=0;k<tmp.columns_;k++)
+				{
+					tmp[j][k];
+					tmp[j][k]=tmp[j][k]*hi-tmp[i][k]*lo;
+				}
+        }
+	}
+
+ 
+			
+    return tmp;
+}
+
+double Matrix::det ()
+{
+	BadDimensions err;
+	if (this->columns_!=this->rows_) throw (err);
+	Matrix tmp = toTriangleMatrix();
+	int n=this->columns_<this->rows_?this->columns_:this->rows_;
+	double res=1;
+	for (int i=0;i<n;i++)
+		res*=tmp[i][i];
+	return res;
+}
+
+void Matrix::nullCell (Matrix &A, Matrix &B, int k)
+{
+    double q = A[k][k];
+    A[k][k]=1;
+    for (int i=k+1;k<A.columns_;i++)
+        A[k][i]/=q;
+    for (int i=0;i<n;i++)
+        B[k][i]/=q;
+    for (int j=k+1;j<n;j++)
+    {
+        q=A[i][k];
+        if (q!=0)
+        {
+            for (int i=j+1;i<n;i++)
+                A[j][i]=A[j][i]-q*A[k][i];
+            for (int i=0;i<n;i++)
+                B[j][i]=B[j][i]-q*B[k][i];
         }
     }
-    return tmp;
+}
+
+Matrix Matrix::toInvertibleMatrix (bool &isDegenerate=false)
+{
+    BadDimensions err;
+    if (this->columns_!=this->rows_) throw (err);
+    Matrix A (*this);
+    if (det()==0)
+    {
+        isDegenerate=true;
+        return Matrix (0,0);
+    }
+    Matrix B (this->columns_,this->columns_);
+    int n=this->columns_;
+    B.makeUnitMatrix (n);
+
 }

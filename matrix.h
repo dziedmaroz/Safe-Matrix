@@ -13,6 +13,7 @@ class Matrix
 	long	columns_, rows_;	// размерности матрицы
 	double*	p_;		// указатель на матрицу
 	Matrix();
+
 	class Row
 	{
 		long	columns_;	// размерность строки
@@ -23,6 +24,9 @@ class Matrix
 		double& operator [] (long j);				// thRow BadFirstIndex
 		const double& operator [] (long j) const;	// thRow BadSecondIndex		
 	};
+
+	void nullCell (Matrix& A, Matrix &B, int k);
+
 public:
 		// конструкторы
 	void makeUnitMatrix (long n);
@@ -33,7 +37,7 @@ public:
 		// оператор присваивания
 	Matrix& operator = (const Matrix& m);	// thRow BadDimensions
 		// оператор индексирования
-	Row& operator [] (long i);				// thRow BadFirstIndex
+	Row operator [] (long i);				// thRow BadFirstIndex
 	const Row operator [] (long i) const;	// thRow BadFirstIndex
 		// унарные операторы
 	Matrix& operator += (const Matrix& m);	// thRow BadDimensions
@@ -55,7 +59,8 @@ public:
 	double det ();
 	long getRows ();
 	long getColumns();
-	Matrix& toTriangleMatrix ();
+	Matrix toInvertibleMatrix ();
+	Matrix toTriangleMatrix ();
 
 };
 

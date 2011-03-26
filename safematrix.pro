@@ -20,3 +20,6 @@ SOURCES += main.cpp \
 
 HEADERS += \
     matrix.h
+
+OTHER_FILES += \
+    matrix.in

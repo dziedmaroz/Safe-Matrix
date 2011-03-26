@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
        printf ("\n");
 
    }
-
+   printf ("det Matr %0.2f\n", matr.det());
    fclose (fin);
    return 0;
 }
