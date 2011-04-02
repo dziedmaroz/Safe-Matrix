@@ -10,8 +10,8 @@ Matrix::Matrix()
 
 Matrix::Matrix (long m, long n)
 {
-    this->columns_=n;
-    this->rows_=m;
+	this->rows_=m;
+    this->columns_=n;   
     p_ = new double [columns_*rows_];
 }
 Matrix::Matrix (const Matrix &m)
@@ -75,19 +75,18 @@ void Matrix::makeUnitMatrix (long n)
 Matrix& Matrix::operator *=(const Matrix &m)
 {
 	BadDimensions err;
-	if (this->rows_!=m.columns_) throw (err);
+	if (this->columns_!=m.rows_) throw (err);	
 	Matrix tmp (this->rows_,m.columns_);
-	for (int i=0;i<this->rows_;i++)
-		for (int j=0;j<m.columns_;j++)
-			for (int r=0; r<this->columns_;r++)
-			{
-				double a = m[r][i];
-				double b = (*this)[j][r];
-				tmp[i][j]= tmp[i][j]+a*b;
-			}
-	delete[] this->p_;
-	*this=tmp;
+	for (int i=0;i<tmp.rows_;i++)
+		for (int j=0;j<tmp.columns_;j++)
+		{
+			tmp[i][j]=0;
+			for (int r=0;r<this->columns_;r++)
+				tmp[i][j]+=(*this)[i][r]*m[j][r];
+		}
+	(*this ) = tmp;
 	return *this;
+	 
 }
 
 Matrix::Row::Row (long rowN, double *p)
@@ -131,6 +130,19 @@ Matrix Matrix::toTriangleMatrix ()
 {
     Matrix tmp = *this;
     int n=this->columns_<this->rows_?this->columns_:this->rows_;
+	double diff =1;
+	if ((*this)[0][0]==0)
+	{
+		int swp=1;
+		while (tmp[swp][0]==0) swp++;
+		for (int i=0;i<rows_;i++)
+		{
+			double t = tmp[0][i];
+			tmp[0][i]=tmp[swp][i];
+			tmp[swp][i]=t;
+		}
+		//diff*=-1;
+	}
     for (int i=0;i<n;i++)
     {
         for (int j=i+1;j<n;j++)
@@ -138,16 +150,23 @@ Matrix Matrix::toTriangleMatrix ()
             double hi=tmp[i][i];
 			double lo=tmp[j][i];
 			if (lo*hi!=0)
-				for (int k=0;k<tmp.columns_;k++)
+			{
+				for (int k=i;k<tmp.columns_;k++)
 				{
-					tmp[j][k];
-					tmp[j][k]=tmp[j][k]*hi-tmp[i][k]*lo;
+					double a = tmp[j][k];
+					double b = tmp [i][k];
+					
+					tmp [j][k] = (a*hi-b*lo)/hi;
 				}
+				
+			}			 
         }
 	}
 
  
-			
+	for (int i=0;i<n;i++)
+		for (int j=0;j<n;j++)
+			tmp[i][j]/=diff;
     return tmp;
 }
 
@@ -160,31 +179,17 @@ double Matrix::det ()
 	double res=1;
 	for (int i=0;i<n;i++)
 		res*=tmp[i][i];
+	for (int i=0;i<columns_;i++)
+	{
+
+		for (int j=0;j<rows_;j++)
+			printf ("%0.2f ",tmp[i][j]);
+		printf ("\n");
+	}
 	return res;
 }
 
-void Matrix::nullCell (Matrix &A, Matrix &B, int k)
-{
-    double q = A[k][k];
-    A[k][k]=1;
-    for (int i=k+1;k<A.columns_;i++)
-        A[k][i]/=q;
-    for (int i=0;i<n;i++)
-        B[k][i]/=q;
-    for (int j=k+1;j<n;j++)
-    {
-        q=A[i][k];
-        if (q!=0)
-        {
-            for (int i=j+1;i<n;i++)
-                A[j][i]=A[j][i]-q*A[k][i];
-            for (int i=0;i<n;i++)
-                B[j][i]=B[j][i]-q*B[k][i];
-        }
-    }
-}
-
-Matrix Matrix::toInvertibleMatrix (bool &isDegenerate=false)
+Matrix Matrix::toInvertibleMatrix (bool& isDegenerate)
 {
     BadDimensions err;
     if (this->columns_!=this->rows_) throw (err);
@@ -194,10 +199,13 @@ Matrix Matrix::toInvertibleMatrix (bool &isDegenerate=false)
         isDegenerate=true;
         return Matrix (0,0);
     }
-    Matrix B (this->columns_,this->columns_);
+    Matrix B (*this);
     int n=this->columns_;
-    B.makeUnitMatrix (n);
-
+	double detA = this->det ();
+    for (int i=0;i<n;i++)
+		for (int j=0;j<n;j++)
+			B[i][j]=this->cofactor(i,j)/detA;
+	return B;
 }
 
 double Matrix::cofactor (int x, int y)
@@ -221,8 +229,16 @@ double Matrix::cofactor (int x, int y)
                 jDiff=1;
                 continue;
             }
-            A[i-iDiff][j-jDiff]=*this [i][j];
+            A[i-iDiff][j-jDiff]=(*this) [i][j];
         }
-    }
+    }	 
     return A.det ();
 }
+
+//Matrix operator + (const Matrix& m1, const  Matrix& m2)
+//{
+//	BadDimensions err;
+//	if (m1.getColumns()!= m2.getColumns() || m1.getRows() != m2.getRows())
+//	throw (err);
+//
+//}

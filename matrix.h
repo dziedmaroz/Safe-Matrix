@@ -25,7 +25,7 @@ class Matrix
 		const double& operator [] (long j) const;	// thRow BadSecondIndex		
 	};
 
-	double cofactor (int i,int j);
+	
 
 
 public:
@@ -58,10 +58,11 @@ public:
 	friend Matrix operator * (const Matrix& m1, const Matrix& m2);
 
 	double det ();
-	long getRows ();
-	long getColumns();
-	Matrix toInvertibleMatrix ();
+	long getRows (){return rows_;}
+	long getColumns() {return columns_;}
+	Matrix toInvertibleMatrix (bool& isDegenerate);
 	Matrix toTriangleMatrix ();
+	double cofactor (int i,int j);
 
 };
 
