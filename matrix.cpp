@@ -1,6 +1,5 @@
 #include "matrix.h"
-#include <cstdlib>
-#include <cstdio>
+#include <cstdlib> 
 Matrix::Matrix()
 {
   this->rows_=0;
@@ -81,8 +80,10 @@ Matrix& Matrix::operator *=(const Matrix &m)
 		for (int j=0;j<tmp.columns_;j++)
 		{
 			tmp[i][j]=0;
+			double s=0;
 			for (int r=0;r<this->columns_;r++)
-				tmp[i][j]+=(*this)[i][r]*m[j][r];
+				s+=(*this)[i][r]*m[r][j];
+			tmp[i][j]+=s;
 		}
 	(*this ) = tmp;
 	return *this;
@@ -134,12 +135,12 @@ Matrix Matrix::toTriangleMatrix ()
 	if ((*this)[0][0]==0)
 	{
 		int swp=1;
-		while (tmp[swp][0]==0) swp++;
+		while (tmp[swp][0]==0 && swp<this->rows_-1) swp++ ;
 		for (int i=0;i<rows_;i++)
 		{
 			double t = tmp[0][i];
 			tmp[0][i]=tmp[swp][i];
-			tmp[swp][i]=t;
+			tmp[swp][i]=t*(-1);
 		}
 		//diff*=-1;
 	}
@@ -178,14 +179,7 @@ double Matrix::det ()
 	int n=this->columns_<this->rows_?this->columns_:this->rows_;
 	double res=1;
 	for (int i=0;i<n;i++)
-		res*=tmp[i][i];
-	for (int i=0;i<columns_;i++)
-	{
-
-		for (int j=0;j<rows_;j++)
-			printf ("%0.2f ",tmp[i][j]);
-		printf ("\n");
-	}
+		res*=tmp[i][i];	 
 	return res;
 }
 
@@ -204,7 +198,7 @@ Matrix Matrix::toInvertibleMatrix (bool& isDegenerate)
 	double detA = this->det ();
     for (int i=0;i<n;i++)
 		for (int j=0;j<n;j++)
-			B[i][j]=this->cofactor(i,j)/detA;
+			B[i][j]=this->cofactor(j,i)/detA;
 	return B;
 }
 
@@ -232,7 +226,8 @@ double Matrix::cofactor (int x, int y)
             A[i-iDiff][j-jDiff]=(*this) [i][j];
         }
     }	 
-    return A.det ();
+	double diff = (x+y)%2?-1:1;
+    return diff*A.det ();
 }
 
 //Matrix operator + (const Matrix& m1, const  Matrix& m2)
